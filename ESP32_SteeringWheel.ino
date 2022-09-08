@@ -24,9 +24,9 @@ void setup() {
 	#endif
 
 
-	if (DEBUG) {
+	#ifdef DEBUG
 		Serial.println("Bluetooth daemon running!");
-	}
+	#endif
 
 	#ifdef IS_DASHBOARD
 		while (!SerialBT.connect(slave_name)) {
@@ -58,14 +58,20 @@ void DashboardPCB() {
 	else {
 		// The device tries to reconnect if the signal gets lost
 		digitalWrite(LED_BUILTIN, LOW);
-		if (DEBUG) {
+		#ifdef DEBUG
 			Serial.println("Device disconected!");
-		}
+		#endif
+
 		while (!SerialBT.connect(slave_name)) {
-			Serial.println("Device not available, retrying...");
+			#ifdef DEBUG
+				Serial.println("Device not available, retrying...");
+			#endif
 		}
 		digitalWrite(LED_BUILTIN, HIGH);
+		
+		#ifdef DEBUG
 		Serial.println("Device connected again!");
+		#endif
 	}
 }
 
