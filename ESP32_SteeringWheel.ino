@@ -1,7 +1,6 @@
-#define IS_STEERING_WHEEL_PCB false // Ena define poy orizei thn 8esh ths plaketas alla kai ta pragmata poy prepei na kanei.
+#define IS_DASHBOARD true // Ena define poy orizei thn 8esh ths plaketas alla kai ta pragmata poy prepei na kanei. (Vgainei me undef)
 									// To steeringwheel einai o slave kai to dashboardPCB einai o master.
 #define DEBUG true	// If debug == true, it spits out to serial a bunch of debugging information.
-#define MAX_BUFFER_LEN 256
 
 #include "BluetoothSerial.h"
 
@@ -17,13 +16,19 @@ void setup() {
 	digitalWrite(LED_BUILTIN, LOW);
 
 	Serial.begin(115200);
-	SerialBT.begin(master_name, !IS_STEERING_WHEEL_PCB);
-	
+
+	#ifdef IS_DASHBOARD
+		SerialBT.begin(master_name, true);
+	#else
+		SerialBT.begin(slave_name, false);
+	#endif
+
+
 	if (DEBUG) {
 		Serial.println("Bluetooth daemon running!");
 	}
 
-	if (!IS_STEERING_WHEEL_PCB) {
+	#ifdef IS_DASHBOARD
 		while (!SerialBT.connect(slave_name)) {
 			Serial.println("Device not available, retrying...");
 		}
@@ -32,10 +37,19 @@ void setup() {
 			output = "Connected to " + slave_name + "!";
 			Serial.println(output);
 		}
-	}
+	#endif
 }
 
 void loop() {
+	#ifdef IS_DASHBOARD
+		DashboardPCB();
+	#else
+		SteeringWheelPCB();
+	#endif
+	
+}
+
+void DashboardPCB() {
 	if (!SerialBT.isClosed() && SerialBT.connected()) {
 		if (SerialBT.available()) {
 			incomingInfo = (byte)SerialBT.read();
@@ -52,5 +66,14 @@ void loop() {
 		}
 		digitalWrite(LED_BUILTIN, HIGH);
 		Serial.println("Device connected again!");
+	}
+}
+
+void SteeringWheelPCB() {
+	if (Serial.available()) {
+		SerialBT.write(Serial.read());
+	}
+	if (SerialBT.available()) {
+		Serial.write(SerialBT.read());
 	}
 }
