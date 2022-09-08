@@ -222,7 +222,8 @@
                 "c:\\users\\nikos\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2-patch3\\lib\\gcc\\xtensa-esp32-elf\\8.4.0\\include",
                 "c:\\users\\nikos\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2-patch3\\lib\\gcc\\xtensa-esp32-elf\\8.4.0\\include-fixed",
                 "c:\\users\\nikos\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2-patch3\\xtensa-esp32-elf\\sys-include",
-                "c:\\users\\nikos\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2-patch3\\xtensa-esp32-elf\\include"
+                "c:\\users\\nikos\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2-patch3\\xtensa-esp32-elf\\include",
+                "C:/Users/Nikos/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.4/tools/sdk/esp32/include/esp_wifi/include/esp_private"
             ],
             "forcedInclude": [
                 "C:\\Users\\Nikos\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\cores\\esp32\\Arduino.h"
