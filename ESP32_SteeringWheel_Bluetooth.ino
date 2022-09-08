@@ -8,8 +8,10 @@ BluetoothSerial SerialBT;
 
 String master_name = "DashboardPCB";
 String slave_name = "SteeringWheelPCB";
+String slave_mac = "EC:62:60:9B:B2:8E";
 String output="";
-byte incomingInfo;
+String msg;
+int receivedByte=0;
 
 void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
@@ -51,8 +53,15 @@ void loop() {
 
 void DashboardPCB() {
 	if (!SerialBT.isClosed() && SerialBT.connected()) {
-		if (SerialBT.available()) {
-			incomingInfo = (byte)SerialBT.read();
+		msg="";
+		bool print = false;
+		while (SerialBT.available()) {
+			receivedByte = SerialBT.read();
+			msg = msg + (char)receivedByte + ",";
+			print = true;
+		}
+		if (print) {
+			Serial.println(msg);
 		}
 	}
 	else {
@@ -63,6 +72,7 @@ void DashboardPCB() {
 		#endif
 
 		while (!SerialBT.connect(slave_name)) {
+			delay(200);
 			#ifdef DEBUG
 				Serial.println("Device not available, retrying...");
 			#endif
