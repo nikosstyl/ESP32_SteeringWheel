@@ -33,10 +33,10 @@ void setup() {
 			Serial.println("Device not available, retrying...");
 		}
 		digitalWrite(LED_BUILTIN, HIGH);
-		if (DEBUG) {
+		#ifdef DEBUG
 			output = "Connected to " + slave_name + "!";
 			Serial.println(output);
-		}
+		#endif
 	#endif
 }
 
