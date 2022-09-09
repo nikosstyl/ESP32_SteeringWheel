@@ -8,88 +8,79 @@ BluetoothSerial SerialBT;
 
 String master_name = "DashboardPCB";
 String slave_name = "SteeringWheelPCB";
-String slave_mac = "EC:62:60:9B:B2:8E";
-String output="";
 String msg;
 int receivedByte=0;
 
+#ifdef IS_DASHBOARD
 void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, LOW);
 
 	Serial.begin(115200);
+	SerialBT.begin(master_name, true);
 
-	#ifdef IS_DASHBOARD
-		SerialBT.begin(master_name, true);
-	#else
-		SerialBT.begin(slave_name, false);
-	#endif
+	printIfDebug("Bluetooth daemon running!\n");
 
-
-	#ifdef DEBUG
-		Serial.println("Bluetooth daemon running!");
-	#endif
-
-	#ifdef IS_DASHBOARD
-		while (!SerialBT.connect(slave_name)) {
-			Serial.println("Device not available, retrying...");
-		}
-		digitalWrite(LED_BUILTIN, HIGH);
-		#ifdef DEBUG
-			output = "Connected to " + slave_name + "!";
-			Serial.println(output);
-		#endif
-	#endif
+	while (!SerialBT.connect(slave_name)) {
+		printIfDebug("Device not available, retrying...\n");
+	}
+	digitalWrite(LED_BUILTIN, HIGH);
+	printIfDebug("Connected to " + slave_name + "!\n");
 }
 
 void loop() {
-	#ifdef IS_DASHBOARD
-		DashboardPCB();
-	#else
-		SteeringWheelPCB();
-	#endif
-	
-}
-
-void DashboardPCB() {
 	if (!SerialBT.isClosed() && SerialBT.connected()) {
-		msg="";
-		bool print = false;
-		while (SerialBT.available()) {
+		if (SerialBT.available()) {
 			receivedByte = SerialBT.read();
-			msg = msg + (char)receivedByte + ",";
-			print = true;
-		}
-		if (print) {
-			Serial.println(msg);
+			msg += (char) receivedByte;
+			if (receivedByte == '\n') {
+				Serial.print(msg);
+				msg="";
+			}
 		}
 	}
 	else {
 		// The device tries to reconnect if the signal gets lost
 		digitalWrite(LED_BUILTIN, LOW);
-		#ifdef DEBUG
-			Serial.println("Device disconected!");
-		#endif
+		printIfDebug("Device disconected!\n");
 
 		while (!SerialBT.connect(slave_name)) {
 			delay(200);
-			#ifdef DEBUG
-				Serial.println("Device not available, retrying...");
-			#endif
+			printIfDebug("Device not available, retrying...\n");
 		}
 		digitalWrite(LED_BUILTIN, HIGH);
 		
-		#ifdef DEBUG
-		Serial.println("Device connected again!");
-		#endif
+		printIfDebug("Device connected again!\n");
 	}
 }
 
-void SteeringWheelPCB() {
+#else // Kodikas gia to SteeringWheelPCB
+
+void setup() {
+	pinMode(LED_BUILTIN, OUTPUT);
+
+	Serial.begin(115200);
+	SerialBT.begin(slave_name, false);
+
+	printIfDebug("Bluetooth daemon running!\n");
+
+	digitalWrite(LED_BUILTIN, HIGH);
+}
+
+void loop() {	
 	if (Serial.available()) {
 		SerialBT.write(Serial.read());
 	}
 	if (SerialBT.available()) {
 		Serial.write(SerialBT.read());
 	}
+}
+
+#endif
+
+void printIfDebug(String output) {
+	#ifdef DEBUG
+		Serial.print(output);
+	#endif
+	return;
 }
