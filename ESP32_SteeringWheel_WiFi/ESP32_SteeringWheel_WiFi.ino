@@ -16,19 +16,21 @@ WiFiServer server(80);
 		digitalWrite(LED_BUILTIN, LOW);
 		Serial.begin(115200);
 
-		WiFI.softAP(ssid, pass);
+		WiFi.softAP(ssid, pass);
 		#ifdef DEBUG
 			Serial.println("Created WiFi hotspot");
 		#endif
+		server.begin();
 	}
 
 	void loop() {
 		WiFiClient client = server.available();
-		#ifdef DEBUG
-			Serial.println("New client connected");
-		#endif
 
-		while (client.connected()) {
+		/* while (client.connected()) {
+			#ifdef DEBUG
+				Serial.println("New client connected");
+			#endif
+
 			digitalWrite(LED_BUILTIN, HIGH);
 			if (client.available()) {
 				char c = client.read();
@@ -38,10 +40,18 @@ WiFiServer server(80);
 					receivedMsg = "";
 				}
 			}
+		} */
+		if (client) {
+			printIfDebug("A new client has been connected!\n");
+			digitalWrite(LED_BUILTIN, HIGH);
+			while(client.connected()) {
+				delay(500);
+			}
+			
 		}
 	}
 #else
-	void loop() {
+	void setup() {
 		pinMode(LED_BUILTIN, OUTPUT);
 		digitalWrite(LED_BUILTIN, LOW);
 		Serial.begin(115200);
@@ -49,14 +59,25 @@ WiFiServer server(80);
 		WiFi.begin(ssid,pass);
 		while (WiFi.status() != WL_CONNECTED) {
 			delay(500);
-			#ifdef DEBUG
-
-			#endif
+			printIfDebug(".");
 		}
+		digitalWrite(LED_BUILTIN, HIGH);
+
+		#ifdef DEBUG
+			printIfDebug("\nWifi Connected!\n");
+		#endif
 	}
 
-	void setup() {
-
+	void loop() {
+		delay(1000);
 	}
 
 #endif
+
+void printIfDebug (String Serialoutput) {
+	#ifdef DEBUG
+		Serial.print(Serialoutput)
+	#endif
+	return;
+}
+
