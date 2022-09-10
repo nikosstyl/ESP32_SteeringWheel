@@ -12,7 +12,7 @@ String master_name = "DashboardPCB";
 String slave_name = "SteeringWheelPCB";
 
 #ifdef IS_DASHBOARD
-char msg[BUFFER_LENGTH]; // Pinakas pou apothikevetai to Bluetooth.
+char msg[BUFFER_LENGTH]={'\0'}; // Pinakas pou apothikevetai to Bluetooth.
 char *msgChar=NULL;
 int receivedByte=0, launch=-1, up_shift=-1, down_shift=-1;
 unsigned int currentChar=0;	// Enas arithmos pou dixnei thn 8esh toy pinaka poy 8a mpei to neo stoixeio. 
