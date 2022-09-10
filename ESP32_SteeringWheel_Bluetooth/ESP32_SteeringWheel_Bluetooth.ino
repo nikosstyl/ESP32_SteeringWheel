@@ -4,6 +4,7 @@
 #define IS_DASHBOARD true // Ena define poy orizei thn 8esh ths plaketas alla kai ta pragmata poy prepei na kanei. (Vgainei me undef)
 						//   To steeringwheel einai o slave kai to dashboardPCB einai o master.
 #define DEBUG true	// If debug == true, it spits out to serial a bunch of debugging information.
+#define BUFFER_LENGTH 128
 
 BluetoothSerial SerialBT;
 
@@ -11,9 +12,10 @@ String master_name = "DashboardPCB";
 String slave_name = "SteeringWheelPCB";
 
 #ifdef IS_DASHBOARD
-String msg;
+char msg[BUFFER_LENGTH]; // Pinakas pou apothikevetai to Bluetooth.
 char *msgChar=NULL;
 int receivedByte=0, launch=-1, up_shift=-1, down_shift=-1;
+unsigned int currentChar=0;	// Enas arithmos pou dixnei thn 8esh toy pinaka poy 8a mpei to neo stoixeio. 
 
 void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
@@ -36,17 +38,26 @@ void loop() {
 	if (!SerialBT.isClosed() && SerialBT.connected()) {
 		if (SerialBT.available()) {
 			receivedByte = SerialBT.read();
-			msg += (char) receivedByte;
+			// msg += (char) receivedByte;
+			msg[currentChar++] = (char) receivedByte;
 			if (receivedByte == '\n') {	// Molis lavei to ending byte, ksekinane oi ypoloipes doyleis (aka CAN Send).
+				/*
 				msgChar = (char*)calloc(msg.length()+1, sizeof(char));	// Allocate ena meros mnhmhs gia na parw tis times pou stelnei to allo ESP32.
 				msg.toCharArray(msgChar, msg.length());	// Metatroph apo String se char gia na to dexetai h sscanf.
 				sscanf(msgChar, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
 				free(msgChar);	// Apodesmevoume tis times gia na mhn kanei mpoum to ESP32.
-				
-				/* char output[128];
+				*/
+
+				sscanf(msg, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
+				#ifdef DEBUG
+				/*
+				char output[128];
 				sprintf(output, "Launch:%d\tUPShift:%d\tDownshift:%d", launch, up_shift, down_shift);
-				Serial.println(output); */
-				msg="";
+				Serial.println(output);
+				*/
+				#endif
+				strncpy(msg, "\n", currentChar);
+				currentChar = 0;
 			}
 		}
 		
@@ -67,7 +78,7 @@ void loop() {
 }
 
 #else // Kodikas gia to SteeringWheelPCB
-char buffer[3*sizeof(int) + 3*sizeof(char)]={'\0'};
+char buffer[BUFFER_LENGTH]={'\0'};
 uint8_t launch=0, up_shift=0, down_shift=0;
 
 void setup() {
