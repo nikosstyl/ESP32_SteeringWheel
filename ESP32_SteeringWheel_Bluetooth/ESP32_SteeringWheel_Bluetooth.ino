@@ -41,21 +41,14 @@ void loop() {
 			// msg += (char) receivedByte;
 			msg[currentChar++] = (char) receivedByte;
 			if (receivedByte == '\n') {	// Molis lavei to ending byte, ksekinane oi ypoloipes doyleis (aka CAN Send).
-				/*
-				msgChar = (char*)calloc(msg.length()+1, sizeof(char));	// Allocate ena meros mnhmhs gia na parw tis times pou stelnei to allo ESP32.
-				msg.toCharArray(msgChar, msg.length());	// Metatroph apo String se char gia na to dexetai h sscanf.
-				sscanf(msgChar, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
-				free(msgChar);	// Apodesmevoume tis times gia na mhn kanei mpoum to ESP32.
-				*/
-
 				sscanf(msg, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
+				
 				#ifdef DEBUG
-				/*
 				char output[128];
 				sprintf(output, "Launch:%d\tUPShift:%d\tDownshift:%d", launch, up_shift, down_shift);
 				Serial.println(output);
-				*/
 				#endif
+				
 				strncpy(msg, "\n", currentChar);
 				currentChar = 0;
 			}
