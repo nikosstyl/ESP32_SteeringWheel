@@ -3,8 +3,16 @@
 // #undef IS_DASHBOARD
 #define IS_DASHBOARD true // Ena define poy orizei thn 8esh ths plaketas alla kai ta pragmata poy prepei na kanei. (Vgainei me undef)
 						//   To steeringwheel einai o slave kai to dashboardPCB einai o master.
-#define DEBUG true	// If debug == true, it spits out to serial a bunch of debugging information.
+// #define DEBUG true	// If debug == true, it spits out to serial a bunch of debugging information.
+#undef DEBUG
+
 #define BUFFER_LENGTH 128
+
+// The button assigned values are not correct. Please, fix them while testing the actual system!
+#define BTN_LAUNCH 2
+#define BTN_UPSHIFT 3
+#define BTN_DOWNSHIFT 4
+#define BTN_PTT 5
 
 BluetoothSerial SerialBT;
 
@@ -13,7 +21,6 @@ String slave_name = "SteeringWheelPCB";
 
 #ifdef IS_DASHBOARD
 char msg[BUFFER_LENGTH]={'\0'}; // Pinakas pou apothikevetai to Bluetooth.
-char *msgChar=NULL;
 int receivedByte=0, launch=-1, up_shift=-1, down_shift=-1;
 unsigned int currentChar=0;	// Enas arithmos pou dixnei thn 8esh toy pinaka poy 8a mpei to neo stoixeio. 
 
@@ -38,7 +45,6 @@ void loop() {
 	if (!SerialBT.isClosed() && SerialBT.connected()) {
 		if (SerialBT.available()) {
 			receivedByte = SerialBT.read();
-			// msg += (char) receivedByte;
 			msg[currentChar++] = (char) receivedByte;
 			if (receivedByte == '\n') {	// Molis lavei to ending byte, ksekinane oi ypoloipes doyleis (aka CAN Send).
 				sscanf(msg, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
@@ -59,13 +65,11 @@ void loop() {
 		// The device tries to reconnect if the signal gets lost
 		digitalWrite(LED_BUILTIN, LOW);
 		printIfDebug("Device disconected!\n");
-
 		while (!SerialBT.connect(slave_name)) {
 			delay(200);
 			printIfDebug("Device not available, retrying...\n");
 		}
 		digitalWrite(LED_BUILTIN, HIGH);
-		
 		printIfDebug("Device connected again!\n");
 	}
 }
@@ -86,9 +90,9 @@ void setup() {
 }
 
 void loop() {	
-	launch = rand();
-	up_shift = rand();
-	down_shift = rand();
+	launch = digitalRead(BTN_LAUNCH);
+	up_shift = digitalRead(BTN_UPSHIFT);
+	down_shift = digitalRead(BTN_DOWNSHIFT);
 	sprintf(buffer, "%d,%d,%d\n", launch, up_shift, down_shift);
 	SerialBT.print(buffer);
 	printIfDebug(buffer);
