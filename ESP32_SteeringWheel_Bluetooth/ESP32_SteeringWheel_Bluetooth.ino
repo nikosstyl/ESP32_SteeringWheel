@@ -1,4 +1,5 @@
 #include "BluetoothSerial.h"
+#include <CAN.h>
 
 // #undef IS_DASHBOARD
 #define IS_DASHBOARD true // Ena define poy orizei thn 8esh ths plaketas alla kai ta pragmata poy prepei na kanei. (Vgainei me undef)
@@ -14,6 +15,8 @@
 #define BTN_DOWNSHIFT 4
 #define BTN_PTT 5
 
+#define CAN_ID 120
+
 BluetoothSerial SerialBT;
 
 String master_name = "DashboardPCB";
@@ -27,6 +30,9 @@ unsigned int currentChar=0;	// Enas arithmos pou dixnei thn 8esh toy pinaka poy 
 void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, LOW);
+
+	/* CAN implementation is expiremental! They may not work!*/
+	while(!CAN.begin(1000E3));
 	
 	Serial.begin(115200);
 	SerialBT.begin(master_name, true);
@@ -49,6 +55,12 @@ void loop() {
 			if (receivedByte == '\n') {	// Molis lavei to ending byte, ksekinane oi ypoloipes doyleis (aka CAN Send).
 				sscanf(msg, "%d,%d,%d\n", &launch, &up_shift, &down_shift);	// Extracting values sent via Bluetooth
 				
+				CAN.beginPacket(CAN_ID);
+				CAN.write(launch);
+				CAN.write(up_shift);
+				CAN.write(down_shift);
+				CAN.endPacket();
+
 				#ifdef DEBUG
 				char output[128];
 				sprintf(output, "Launch:%d\tUPShift:%d\tDownshift:%d", launch, up_shift, down_shift);
